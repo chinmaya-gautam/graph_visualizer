@@ -28,11 +28,12 @@ def plot_graph_2():
     win.setBackground('white')
 
     edges = [{'a', 'b'}, {'a', 'c'}, {'a', 'd'}, {'b', 'e'}, {'c', 'e'}, {'c', 'd'}, {'c', 'f'}, {'d', 'h'}, {'e', 'g'}, {'f', 'g'}, {'f', 'h'}]
-
+    root = 'a'
+    
     adj_list = utils.to_adj_list(edges)
     print(adj_list)
-    g = Graph(adj_list).default()
-
+    #g = Graph(adj_list).default(root='a')
+    g = Graph(adj_list).bfs_tree(root='a')
     # Draw points
     for node in g['nodes']:
         m = Text(node.point, node.name)

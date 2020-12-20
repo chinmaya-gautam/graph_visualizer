@@ -15,44 +15,49 @@ class Graph:
         adj_list: dict with keys as Node types and values as set of Nodes types
         '''
         self.adj_list = adj_list
-
-        self.reprs = {
-            'default': None,
-            'bipartite': None,
-            'bfs': None,
-            'dfs': None,
-            'bfs_tree': None,
-            'dfs_tree': None
-        }
-
         self.configs = get_configs()
 
-    def default(self):
-        if self.reprs['default']:
-            return self.reprs['default']
-        else:
-            self.reprs['default'] = self._get_default_repr()
-            return self.reprs['default']
+        self.reprs = {
+            'default': dict(),
+            'bipartite': dict(),
+            'bfs': dict(),
+            'dfs': dict(),
+            'bfs_tree': dict(),
+            'dfs_tree': dict()
+        }
+    def default(self, root: Node=None):
+        if root:
+            root = Node(root)
+
+        if root not in self.reprs['default']:
+            self.reprs['default'][root] = self._get_default_repr(root)
+        return self.reprs['default'][root]
         
     def bipartite(self):
         pass
 
-    def bfs(self, start: Node, end:Node)->None:
+    def bfs(self, start: Node, end:Node=None)->None:
         pass
 
-    def dfs(self, start:Node, end:Node)->None:
+    def dfs(self, start:Node, end:Node=None)->None:
         pass
 
-    def bfs_tree(self, start:Node, end:Node)->None:
-        pass
+    def bfs_tree(self, root:Node, end:Node=None)->None:
+        if root:
+            root = Node(root)
 
-    def dfs_tree(self, start:Node, end:Node)->None:
+        if root not in self.reprs['bfs_tree']:
+            self.reprs['bfs_tree'][root] = self._get_bfs_tree_repr(root)
+        return self.reprs['bfs_tree'][root]
+
+
+    def dfs_tree(self, start:Node, end:Node=None)->None:
         pass
                 
     
     ############## private methods ###############
 
-    def _get_default_repr(self):
+    def _get_default_repr(self, root):
         '''
         simple bfs based
         '''
@@ -62,7 +67,11 @@ class Graph:
         }
         
         adj_list = deepcopy(self.adj_list)
-        depths, _ = GraphAlgorithm(adj_list).bfs(list(adj_list.keys())[0])
+
+        if not root:
+            root = list(adj_list.keys())[0]
+
+        depths, _ = GraphAlgorithm(adj_list).bfs(root)
         
         num_layers = len(depths)
 
@@ -99,3 +108,47 @@ class Graph:
                 
 
         return default_repr
+    
+    def _get_bfs_tree_repr(self, root):
+        '''
+        simple bfs based
+        '''
+        bfs_tree_repr = {
+            'nodes': set(),
+            'edges': set()
+        }
+        
+        adj_list = deepcopy(self.adj_list)
+
+        if not root:
+            root = list(adj_list.keys())[0]
+
+        depths, edges = GraphAlgorithm(adj_list).bfs(root)
+        
+        num_layers = len(depths)
+
+        max_width = 0
+        for node_list in depths:
+            if len(node_list) > max_width:
+                max_width = len(node_list)
+
+        layer_height = (self.configs.win_height - self.configs.y_padding * 2)//(num_layers - 1)
+    
+        # set points
+        node_points = dict()
+        for depth, node_list in enumerate(depths):
+            num_nodes = len(node_list)
+            spacing = (self.configs.win_width - self.configs.x_padding * 2)//(num_nodes + 1)
+            
+            for i, node in enumerate(node_list):
+                x_pos = depth * layer_height + self.configs.x_padding
+                y_pos = spacing * (i + 1) + self.configs.y_padding
+                node.set_pos(x_pos, y_pos)
+                bfs_tree_repr['nodes'].add(node)
+                node_points[node] = node
+        
+        # set edges:
+        for edge in edges:
+            bfs_tree_repr['edges'].add(edge)
+
+        return bfs_tree_repr
