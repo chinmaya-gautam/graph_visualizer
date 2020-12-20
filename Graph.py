@@ -71,17 +71,17 @@ class Graph:
             if len(node_list) > max_width:
                 max_width = len(node_list)
 
-        layer_height = self.configs.win_height//(num_layers - 1)
+        layer_height = (self.configs.win_height - self.configs.y_padding * 2)//(num_layers - 1)
     
         # set points
         node_points = dict()
         for depth, node_list in enumerate(depths):
             num_nodes = len(node_list)
-            spacing = self.configs.win_width//(num_nodes + 1)
+            spacing = (self.configs.win_width - self.configs.x_padding * 2)//(num_nodes + 1)
             
             for i, node in enumerate(node_list):
-                x_pos = depth * layer_height
-                y_pos = spacing * (i + 1)
+                x_pos = depth * layer_height + self.configs.x_padding
+                y_pos = spacing * (i + 1) + self.configs.y_padding
                 node.set_pos(x_pos, y_pos)
                 default_repr['nodes'].add(node)
                 node_points[node] = node

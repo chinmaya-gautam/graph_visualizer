@@ -2,7 +2,7 @@ from graphics import *
 import utils
 from Graph import Graph
 import time
-
+from configs import get_configs
 g = {
     'a': {'b', 'c', 'd'},
     'b': {'a', 'e'},
@@ -21,57 +21,10 @@ depths = [
     ['g', 'h']
 ]
 
-WIN_HEIGHT = 600
-WIN_WIDTH = 600
-
-def plot_graph():
-    win = GraphWin('Graph Plot', WIN_HEIGHT, WIN_WIDTH)
-    win.setBackground('white')
-
-    num_layers = len(depths)
-    max_width = 0
-    for node_list in depths:
-        if len(node_list) > max_width:
-            max_width = len(node_list)
-
-    layer_height = WIN_HEIGHT//(num_layers - 1)
-
-    
-    # Draw points
-    node_points = dict()
-    for depth, node_list in enumerate(depths):
-        num_nodes = len(node_list)
-        spacing = WIN_WIDTH//(num_nodes + 1)
-
-        for i, node in enumerate(node_list):
-            x_pos = depth * layer_height
-            y_pos = spacing * (i + 1)
-            node_points[node] = Point(x_pos, y_pos)
-            print ("Drawing {} at ({}, {})".format(node, x_pos, y_pos))
-            message = Text(Point(x_pos, y_pos), node)
-            message.setSize(20)
-            message.setTextColor('red')
-            message.draw(win)
-
-    # Draw lines:
-    for node1 in node_points:
-        p1 = node_points[node1]
-        for node2 in g[node1]:
-            p2 = node_points[node2]
-            l = Line(p1, p2)
-            l.draw(win)
-            
-    win.getMouse()
-    win.close()
-# plot_graph()
-
-
-
-
-
+configs = get_configs()
 
 def plot_graph_2():
-    win = GraphWin('Graph Plot', 1300, 1300)
+    win = GraphWin('Graph Plot', configs.win_width, configs.win_height)
     win.setBackground('white')
 
     edges = [{'a', 'b'}, {'a', 'c'}, {'a', 'd'}, {'b', 'e'}, {'c', 'e'}, {'c', 'd'}, {'c', 'f'}, {'d', 'h'}, {'e', 'g'}, {'f', 'g'}, {'f', 'h'}]

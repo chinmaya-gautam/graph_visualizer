@@ -1,7 +1,9 @@
 from collections import namedtuple
 defaults = {
     'win_height': 600,
-    'win_width': 600
+    'win_width': 600,
+    'x_padding': 20,
+    'y_padding': 20
 }
 
 def _final_configs():
