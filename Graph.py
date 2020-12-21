@@ -18,7 +18,6 @@ class Graph:
         self.configs = get_configs()
 
         self.reprs = {
-            'default': dict(),
             'bipartite': dict(),
             'bfs': dict(),
             'dfs': dict(),
@@ -26,21 +25,27 @@ class Graph:
             'dfs_tree': dict()
         }
     def default(self, root: Node=None):
-        if root:
-            root = Node(root)
-
-        if root not in self.reprs['default']:
-            self.reprs['default'][root] = self._get_default_repr(root)
-        return self.reprs['default'][root]
+        return self.bfs(root)
         
     def bipartite(self):
         pass
 
-    def bfs(self, start: Node, end:Node=None)->None:
-        pass
+    def bfs(self, root: Node, end:Node=None)->None:
+        if root:
+            root = Node(root)
 
-    def dfs(self, start:Node, end:Node=None)->None:
-        pass
+        if root not in self.reprs['bfs']:
+            self.reprs['bfs'][root] = self._get_bfs_repr(root)
+        return self.reprs['bfs'][root]
+
+    def dfs(self, root:Node, end:Node=None)->None:
+        if root:
+            root = Node(root)
+
+        if root not in self.reprs['dfs']:
+            self.reprs['dfs'][root] = self._get_dfs_repr(root)
+        return self.reprs['dfs'][root]
+
 
     def bfs_tree(self, root:Node, end:Node=None)->None:
         if root:
@@ -51,17 +56,23 @@ class Graph:
         return self.reprs['bfs_tree'][root]
 
 
-    def dfs_tree(self, start:Node, end:Node=None)->None:
-        pass
+    def dfs_tree(self, root:Node, end:Node=None)->None:
+        if root:
+            root = Node(root)
+
+        if root not in self.reprs['dfs_tree']:
+            self.reprs['dfs_tree'][root] = self._get_dfs_tree_repr(root)
+        return self.reprs['dfs_tree'][root]
+
                 
     
     ############## private methods ###############
 
-    def _get_default_repr(self, root):
+    def _get_bfs_repr(self, root):
         '''
         simple bfs based
         '''
-        default_repr = {
+        bfs_repr = {
             'nodes': set(),
             'edges': set()
         }
@@ -92,7 +103,7 @@ class Graph:
                 x_pos = depth * layer_height + self.configs.x_padding
                 y_pos = spacing * (i + 1) + self.configs.y_padding
                 node.set_pos(x_pos, y_pos)
-                default_repr['nodes'].add(node)
+                bfs_repr['nodes'].add(node)
                 node_points[node] = node
         
         # set edges:
@@ -103,11 +114,11 @@ class Graph:
                 node2 = node_points[node2]
 
                 if not (node1, node2) in seen and not (node2, node1) in seen:
-                    default_repr['edges'].add((node1, node2))
+                    bfs_repr['edges'].add((node1, node2))
                     seen.add((node1, node2))
                 
 
-        return default_repr
+        return bfs_repr
     
     def _get_bfs_tree_repr(self, root):
         '''
@@ -152,3 +163,99 @@ class Graph:
             bfs_tree_repr['edges'].add(edge)
 
         return bfs_tree_repr
+
+    def _get_dfs_repr(self, root):
+        '''
+        simple dfs based
+        '''
+        dfs_repr = {
+            'nodes': set(),
+            'edges': set()
+        }
+        
+        adj_list = deepcopy(self.adj_list)
+
+        if not root:
+            root = list(adj_list.keys())[0]
+
+        depths, _ = GraphAlgorithm(adj_list).dfs(root)
+        
+        num_layers = len(depths)
+
+        max_width = 0
+        for node_list in depths:
+            if len(node_list) > max_width:
+                max_width = len(node_list)
+
+        layer_height = (self.configs.win_height - self.configs.y_padding * 2)//(num_layers - 1)
+    
+        # set points
+        node_points = dict()
+        for depth, node_list in enumerate(depths):
+            num_nodes = len(node_list)
+            spacing = (self.configs.win_width - self.configs.x_padding * 2)//(num_nodes + 1)
+            
+            for i, node in enumerate(node_list):
+                x_pos = depth * layer_height + self.configs.x_padding
+                y_pos = spacing * (i + 1) + self.configs.y_padding
+                node.set_pos(x_pos, y_pos)
+                dfs_repr['nodes'].add(node)
+                node_points[node] = node
+        
+        # set edges:
+        seen = set()
+        for node1 in adj_list:
+            for node2 in adj_list[node1]:
+                node1 = node_points[node1]
+                node2 = node_points[node2]
+
+                if not (node1, node2) in seen and not (node2, node1) in seen:
+                    dfs_repr['edges'].add((node1, node2))
+                    seen.add((node1, node2))
+                
+
+        return dfs_repr
+
+    def _get_dfs_tree_repr(self, root):
+        '''
+        simple dfs based
+        '''
+        dfs_tree_repr = {
+            'nodes': set(),
+            'edges': set()
+        }
+        
+        adj_list = deepcopy(self.adj_list)
+
+        if not root:
+            root = list(adj_list.keys())[0]
+
+        depths, edges = GraphAlgorithm(adj_list).dfs(root)
+        
+        num_layers = len(depths)
+
+        max_width = 0
+        for node_list in depths:
+            if len(node_list) > max_width:
+                max_width = len(node_list)
+
+        layer_height = (self.configs.win_height - self.configs.y_padding * 2)//(num_layers - 1)
+    
+        # set points
+        node_points = dict()
+        for depth, node_list in enumerate(depths):
+            num_nodes = len(node_list)
+            spacing = (self.configs.win_width - self.configs.x_padding * 2)//(num_nodes + 1)
+            
+            for i, node in enumerate(node_list):
+                x_pos = depth * layer_height + self.configs.x_padding
+                y_pos = spacing * (i + 1) + self.configs.y_padding
+                node.set_pos(x_pos, y_pos)
+                dfs_tree_repr['nodes'].add(node)
+                node_points[node] = node
+        
+        # set edges:
+        for edge in edges:
+            dfs_tree_repr['edges'].add(edge)
+
+        return dfs_tree_repr

@@ -33,7 +33,9 @@ def plot_graph_2():
     adj_list = utils.to_adj_list(edges)
     print(adj_list)
     #g = Graph(adj_list).default(root='a')
-    g = Graph(adj_list).bfs_tree(root='a')
+    #g = Graph(adj_list).bfs_tree(root='a')
+    #g = Graph(adj_list).dfs(root='a')
+    g = Graph(adj_list).dfs_tree(root='a')
     # Draw points
     for node in g['nodes']:
         m = Text(node.point, node.name)

@@ -34,6 +34,37 @@ class GraphAlgorithm:
                 depths[node_depth - 1].append(current)
         return depths, edges
 
+    def dfs(self, root: Node) -> list:
+        return self._dfs_iterative(root)
+
+    def _dfs_iterative(self, root: Node) -> list:
+
+        stack = list()
+        depths = list()
+        visited = set()
+        edges = list()
+        
+        stack.append((root, 1, None))
+        
+        while stack:
+            current, node_depth, parent = stack.pop()
+            if current in visited:
+                continue
+            visited.add(current)
+            if parent:
+                edges.append((parent, current))
+            if current in self.adj_list:
+                for child in self.adj_list[current]:
+                    if child not in visited:
+                        stack.append((child, node_depth + 1, current))
+
+            if node_depth > len(depths):
+                depths.append([current])
+            else:
+                depths[node_depth - 1].append(current)
+
+        return depths, edges
+
 
 if __name__ == "__main__":
     adj_list = {
